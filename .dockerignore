@@ -1,0 +1,13 @@
+**/target/
+**/node_modules/
+**/node/
+**/dist/
+**/.idea/
+**/.vscode/
+**/*.iml
+.git
+.gitignore
+.dockerignore
+.env
+*.md
+backend/src/main/resources/static/

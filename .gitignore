@@ -1,0 +1,27 @@
+# Maven
+target/
+*.jar
+*.war
+
+# Node
+node_modules/
+node/
+dist/
+
+# Angular build output copied to backend
+backend/src/main/resources/static/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
