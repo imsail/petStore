@@ -11,14 +11,84 @@ A full-stack pet store application built with Spring Boot and Angular, deployed 
 
 ## Prerequisites
 
-- **Docker route:** Docker and Docker Compose
-- **Local route:** Java 25, Maven 3.9+, Node.js 20+, PostgreSQL 17
+| Route | Requirements |
+|-------|-------------|
+| **OrbStack** | [OrbStack](https://orbstack.dev/) installed (macOS 13+, Apple Silicon or Intel) |
+| **Apple Containers** | macOS 26+, Apple Silicon, [container CLI](https://github.com/apple/container) installed |
+| **Docker** | Docker and Docker Compose |
+| **Local (no containers)** | Java 25, Maven 3.9+, Node.js 20+, PostgreSQL 17 |
 
 ## Build & Run
 
-### Docker (recommended)
+### OrbStack (recommended for macOS)
 
-The easiest way to get started. This builds the app and starts it alongside a PostgreSQL database:
+[OrbStack](https://orbstack.dev/) is a lightweight Docker Desktop alternative optimized for Apple Silicon. It is a drop-in replacement — all `docker` and `docker compose` commands work as-is.
+
+1. Install OrbStack:
+
+```bash
+brew install orbstack
+```
+
+2. Start OrbStack, then run the app exactly like Docker:
+
+```bash
+docker compose up --build
+```
+
+The application will be available at **http://localhost:8080**.
+
+To stop:
+
+```bash
+docker compose down
+```
+
+### Apple Containers (macOS 26+)
+
+[Apple Containers](https://github.com/apple/container) is Apple's native container runtime for Apple Silicon, using lightweight VMs via the Virtualization framework. It does not support Docker Compose natively, so you run each container individually.
+
+1. Install the container CLI:
+
+```bash
+brew install container
+```
+
+2. Start PostgreSQL:
+
+```bash
+container run --name petstore-db \
+  -e POSTGRES_DB=petstore \
+  -e POSTGRES_USER=petstore \
+  -e POSTGRES_PASSWORD=petstore \
+  -p 5432:5432 \
+  docker.io/library/postgres:17-alpine
+```
+
+3. Build and run the application:
+
+```bash
+container build --tag petstore .
+container run --name petstore-app \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.internal:5432/petstore \
+  -e SPRING_DATASOURCE_USERNAME=petstore \
+  -e SPRING_DATASOURCE_PASSWORD=petstore \
+  -p 8080:8080 \
+  petstore
+```
+
+The application will be available at **http://localhost:8080**.
+
+To stop:
+
+```bash
+container stop petstore-app
+container stop petstore-db
+```
+
+> **Note:** Apple Containers is still early-stage (v0.1.x). For multi-container workflows, consider [container-compose](https://github.com/Mcrich23/Container-Compose) as a community-built alternative to Docker Compose.
+
+### Docker
 
 ```bash
 docker compose up --build
@@ -38,7 +108,7 @@ To stop and remove the database volume:
 docker compose down -v
 ```
 
-### Local Development
+### Local Development (no containers)
 
 #### 1. Set up PostgreSQL
 
