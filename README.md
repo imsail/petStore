@@ -4,7 +4,7 @@ A full-stack pet store application built with Spring Boot and Angular, deployed 
 
 ## Tech Stack
 
-- **Backend:** Java 25, Spring Boot 4.0.2, Spring Data JPA, Flyway, PostgreSQL
+- **Backend:** Java 21, Spring Boot 4.0.2, Spring Data JPA, Flyway, PostgreSQL
 - **Frontend:** Angular 19 (standalone components, signals, SCSS), Bootstrap 5
 - **Build:** Maven multi-module (root aggregator → frontend + backend)
 - **Runtime:** Docker Compose (app + PostgreSQL 17)
@@ -16,7 +16,7 @@ A full-stack pet store application built with Spring Boot and Angular, deployed 
 | **OrbStack** | [OrbStack](https://orbstack.dev/) installed (macOS 13+, Apple Silicon or Intel) |
 | **Apple Containers** | macOS 26+, Apple Silicon, [container CLI](https://github.com/apple/container) installed |
 | **Docker** | Docker and Docker Compose |
-| **Local (no containers)** | Java 25, Maven 3.9+, Node.js 20+, PostgreSQL 17 |
+| **Local (no containers)** | Java 21, Maven 3.9+, Node.js 20+, PostgreSQL 17 |
 
 ## Build & Run
 

@@ -47,6 +47,10 @@ public class CustomerService {
         repository.deleteById(id);
     }
 
+    public Customer saveEntity(Customer entity) {
+        return repository.save(entity);
+    }
+
     public Customer getEntity(Long id) {
         return repository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + id));

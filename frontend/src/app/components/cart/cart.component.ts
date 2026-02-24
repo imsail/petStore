@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { CustomerService } from '../../services/customer.service';
+import { AuthService } from '../../services/auth.service';
 import { Customer } from '../../models/customer.model';
 
 @Component({
@@ -52,16 +53,21 @@ import { Customer } from '../../models/customer.model';
 
       <div class="card p-3 mb-3">
         <h5>Checkout</h5>
-        <div class="mb-3">
-          <label class="form-label">Select Customer</label>
-          <select class="form-select" [(ngModel)]="selectedCustomerId">
-            <option [ngValue]="undefined">Choose a customer...</option>
-            @for (c of customers; track c.id) {
-              <option [ngValue]="c.id">{{ c.name }} ({{ c.email }})</option>
-            }
-          </select>
-        </div>
-        <button class="btn btn-success" [disabled]="!selectedCustomerId" (click)="checkout()">Place Order</button>
+        @if (authService.isAdmin()) {
+          <div class="mb-3">
+            <label class="form-label">Select Customer</label>
+            <select class="form-select" [(ngModel)]="selectedCustomerId">
+              <option [ngValue]="undefined">Choose a customer...</option>
+              @for (c of customers; track c.id) {
+                <option [ngValue]="c.id">{{ c.name }} ({{ c.email }})</option>
+              }
+            </select>
+          </div>
+          <button class="btn btn-success" [disabled]="!selectedCustomerId" (click)="checkout()">Place Order</button>
+        } @else {
+          <p>Ordering as: <strong>{{ authService.currentUser()?.customerName }}</strong></p>
+          <button class="btn btn-success" (click)="checkout()">Place Order</button>
+        }
       </div>
     }
   `
@@ -74,18 +80,26 @@ export class CartComponent {
     public cartService: CartService,
     private orderService: OrderService,
     private customerService: CustomerService,
+    public authService: AuthService,
     private router: Router
   ) {
-    this.customerService.findAll().subscribe(c => this.customers = c);
+    if (this.authService.isAdmin()) {
+      this.customerService.findAll().subscribe(c => this.customers = c);
+    }
   }
 
   checkout(): void {
-    if (!this.selectedCustomerId) return;
+    const customerId = this.authService.isAdmin()
+      ? this.selectedCustomerId
+      : this.authService.currentUser()?.customerId;
+
+    if (!customerId) return;
+
     const items = this.cartService.items().map(item => ({
       petId: item.pet.id,
       quantity: item.quantity
     }));
-    this.orderService.create({ customerId: this.selectedCustomerId, items }).subscribe(order => {
+    this.orderService.create({ customerId, items }).subscribe(order => {
       this.cartService.clear();
       this.router.navigate(['/orders', order.id]);
     });

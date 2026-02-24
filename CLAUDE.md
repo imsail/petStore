@@ -4,7 +4,7 @@
 Spring Boot + Angular monolith pet store application. Manages pets, categories, customers, orders, and inventory. Single JAR deployment with Angular build output served from Spring Boot static resources.
 
 ## Tech Stack
-- **Backend:** Java 25, Spring Boot 4.0.2, Spring Data JPA, Flyway, PostgreSQL
+- **Backend:** Java 21, Spring Boot 4.0.2, Spring Data JPA, Spring Security, Flyway, PostgreSQL
 - **Frontend:** Angular 19 (standalone components, signals, SCSS), Bootstrap 5
 - **Build:** Maven multi-module (root aggregator → frontend + backend)
 - **Runtime:** Docker Compose (app + PostgreSQL 17)
@@ -14,7 +14,8 @@ Spring Boot + Angular monolith pet store application. Manages pets, categories, 
 petstore/
 ├── backend/          Spring Boot app
 │   └── src/main/java/com/petstore/
-│       ├── config/       WebConfig (SPA routing)
+│       ├── config/       WebConfig (SPA routing), SecurityConfig
+│       ├── security/     UserDetails, UserDetailsService
 │       ├── controller/   REST controllers (/api/*)
 │       ├── dto/          Java record DTOs
 │       ├── entity/       JPA entities + enums
@@ -24,7 +25,8 @@ petstore/
 │       └── service/      Business logic
 ├── frontend/         Angular app
 │   └── src/app/
-│       ├── components/   14 standalone components
+│       ├── components/   17 standalone components (includes login, register, profile)
+│       ├── guards/       Route guards (authGuard, adminGuard)
 │       ├── models/       TypeScript interfaces
 │       └── services/     HTTP + CartService (signals)
 ├── Dockerfile        Multi-stage (node → maven → jre)
@@ -69,6 +71,16 @@ cd backend && mvn test             # uses H2 in-memory DB (application-test.yml)
 | Customers   | `GET/POST /api/customers`, `GET/PUT/DELETE /api/customers/{id}`, `GET /api/customers/{id}/orders` |
 | Orders      | `GET/POST /api/orders`, `GET /api/orders/{id}`, `PATCH /api/orders/{id}/status` |
 | Inventory   | `GET /api/inventory`, `GET /api/inventory/low-stock`, `PATCH /api/inventory/pets/{id}/stock` |
+| Auth        | `POST /api/auth/login`, `POST /api/auth/register`, `POST /api/auth/logout`, `GET /api/auth/me` |
+| Me          | `GET/PUT /api/me/profile`, `GET /api/me/orders` |
+
+## Security
+- **Authentication:** Session-based (in-memory HTTP sessions), Spring Security with BCrypt passwords
+- **Roles:** ADMIN and CUSTOMER (enum `Role.java`, stored in `users` table)
+- **Default admin:** `admin@petstore.com` / `admin123` (seeded via V7 migration)
+- **Access control:** Public read for pets/categories/inventory; ADMIN for all write ops and customer/order management; CUSTOMER can create orders and access /api/me endpoints
+- **Separate User entity** — auth concerns decoupled from Customer domain entity; admin users have no Customer record
+- **CSRF disabled** — JSON API with session cookies
 
 ## Key Design Decisions
 - **Cart is client-side only** — Angular signals in `CartService`, converts to Order on checkout
@@ -79,12 +91,12 @@ cd backend && mvn test             # uses H2 in-memory DB (application-test.yml)
 - **Environment config** — `application.yml` uses `${ENV_VAR:default}` pattern; Docker overrides via `SPRING_DATASOURCE_*` env vars
 
 ## Database
-- Flyway migrations in `backend/src/main/resources/db/migration/` (V1–V6)
+- Flyway migrations in `backend/src/main/resources/db/migration/` (V1–V7)
 - Seed data: 6 categories + 4 sample pets
 - PostgreSQL connection defaults: `localhost:5432/petstore`, user/password: `petstore/petstore`
 
 ## Code Conventions
-- Backend packages: `entity`, `dto`, `repository`, `service`, `controller`, `mapper`, `exception`, `config`
+- Backend packages: `entity`, `dto`, `repository`, `service`, `controller`, `mapper`, `exception`, `config`, `security`
 - All Angular components are standalone (no NgModules)
 - Angular routes use lazy loading via `loadComponent`
 - No Lombok — plain getters/setters on entities, records for DTOs

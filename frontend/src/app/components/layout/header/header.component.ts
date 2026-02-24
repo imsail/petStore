@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CartService } from '../../../services/cart.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   template: `
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
@@ -21,27 +23,49 @@ import { CartService } from '../../../services/cart.service';
             <li class="nav-item">
               <a class="nav-link" routerLink="/categories" routerLinkActive="active">Categories</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" routerLink="/customers" routerLinkActive="active">Customers</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" routerLink="/orders" routerLinkActive="active">Orders</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" routerLink="/inventory" routerLinkActive="active">Inventory</a>
-            </li>
-          </ul>
-          <a class="btn btn-outline-light" routerLink="/cart">
-            Cart
-            @if (cartService.itemCount() > 0) {
-              <span class="badge bg-danger ms-1">{{ cartService.itemCount() }}</span>
+            @if (authService.isAdmin()) {
+              <li class="nav-item">
+                <a class="nav-link" routerLink="/customers" routerLinkActive="active">Customers</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" routerLink="/orders" routerLinkActive="active">Orders</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" routerLink="/inventory" routerLinkActive="active">Inventory</a>
+              </li>
             }
-          </a>
+          </ul>
+          <div class="d-flex align-items-center gap-2">
+            @if (authService.isLoggedIn()) {
+              <a class="btn btn-outline-light" routerLink="/cart">
+                Cart
+                @if (cartService.itemCount() > 0) {
+                  <span class="badge bg-danger ms-1">{{ cartService.itemCount() }}</span>
+                }
+              </a>
+              @if (authService.isCustomer()) {
+                <a class="btn btn-outline-light" routerLink="/profile">Profile</a>
+              }
+              <span class="text-light">{{ authService.currentUser()?.email }}</span>
+              <button class="btn btn-outline-light" (click)="logout()">Logout</button>
+            } @else {
+              <a class="btn btn-outline-light" routerLink="/login">Login</a>
+              <a class="btn btn-light" routerLink="/register">Register</a>
+            }
+          </div>
         </div>
       </div>
     </nav>
   `
 })
 export class HeaderComponent {
-  constructor(public cartService: CartService) {}
+  constructor(
+    public cartService: CartService,
+    public authService: AuthService,
+    private router: Router
+  ) {}
+
+  logout(): void {
+    this.authService.logout().subscribe(() => this.router.navigate(['/login']));
+  }
 }

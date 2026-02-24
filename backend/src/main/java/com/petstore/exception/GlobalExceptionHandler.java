@@ -16,6 +16,12 @@ public class GlobalExceptionHandler {
             .body(new ErrorResponse(404, ex.getMessage()));
     }
 
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(new ErrorResponse(409, ex.getMessage()));
+    }
+
     @ExceptionHandler(InsufficientStockException.class)
     public ResponseEntity<ErrorResponse> handleInsufficientStock(InsufficientStockException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
