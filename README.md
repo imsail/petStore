@@ -15,6 +15,7 @@ A full-stack pet store application built with Spring Boot and Angular, deployed 
 |-------|-------------|
 | **OrbStack** | [OrbStack](https://orbstack.dev/) installed (macOS 13+, Apple Silicon or Intel) |
 | **Apple Containers** | macOS 26+, Apple Silicon, [container CLI](https://github.com/apple/container) installed |
+| **Podman** | Podman and `podman-compose` (`brew install podman podman-compose`) |
 | **Docker** | Docker and Docker Compose |
 | **Local (no containers)** | Java 21, Maven 3.9+, Node.js 20+, PostgreSQL 17 |
 
@@ -87,6 +88,34 @@ container stop petstore-db
 ```
 
 > **Note:** Apple Containers is still early-stage (v0.1.x). For multi-container workflows, consider [container-compose](https://github.com/Mcrich23/Container-Compose) as a community-built alternative to Docker Compose.
+
+### Podman
+
+Podman is a drop-in Docker alternative. Install `podman-compose` if you don't have it:
+
+```bash
+brew install podman podman-compose
+```
+
+Then run using `podman` instead of `docker`:
+
+```bash
+podman compose up --build
+```
+
+The application will be available at **http://localhost:8080**.
+
+To stop:
+
+```bash
+podman compose down
+```
+
+To stop and remove the database volume:
+
+```bash
+podman compose down -v
+```
 
 ### Docker
 
