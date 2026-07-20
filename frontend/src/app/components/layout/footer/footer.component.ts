@@ -4,11 +4,13 @@ import { Component } from '@angular/core';
   selector: 'app-footer',
   standalone: true,
   template: `
-    <footer class="bg-dark text-light py-3 mt-5">
-      <div class="container text-center">
-        <p class="mb-0">Pet Store &copy; 2026. All rights reserved.</p>
-      </div>
+    <footer>
+      <p>Pet Store &copy; 2026. All rights reserved.</p>
     </footer>
-  `
+  `,
+  styles: [`
+    footer { border-top: 1px solid var(--p-content-border-color); color: var(--p-text-muted-color); padding: 1.25rem; text-align: center; }
+    p { margin: 0; }
+  `]
 })
 export class FooterComponent {}

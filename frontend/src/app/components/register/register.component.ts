@@ -3,50 +3,46 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ButtonModule, CardModule, InputTextModule, MessageModule],
   template: `
-    <div class="row justify-content-center">
-      <div class="col-md-6 col-lg-5">
-        <div class="card mt-4">
-          <div class="card-body">
-            <h3 class="card-title text-center mb-4">Register</h3>
-            @if (error) {
-              <div class="alert alert-danger">{{ error }}</div>
-            }
-            <form (ngSubmit)="register()">
-              <div class="mb-3">
-                <label class="form-label">Name</label>
-                <input type="text" class="form-control" [(ngModel)]="name" name="name" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-control" [(ngModel)]="email" name="email" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-control" [(ngModel)]="password" name="password" required minlength="6">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Phone</label>
-                <input type="text" class="form-control" [(ngModel)]="phone" name="phone">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Address</label>
-                <input type="text" class="form-control" [(ngModel)]="address" name="address">
-              </div>
-              <button type="submit" class="btn btn-primary w-100" [disabled]="!name || !email || !password">Register</button>
-            </form>
-            <p class="text-center mt-3 mb-0">
-              Already have an account? <a routerLink="/login">Login</a>
-            </p>
-          </div>
+    <p-card styleClass="auth-card">
+      <ng-template #header><h2>Register</h2></ng-template>
+      @if (error) {
+        <p-message class="message-block" severity="error" [text]="error" />
+      }
+      <form (ngSubmit)="register()">
+        <div class="form-field">
+          <label for="register-name">Name</label>
+          <input pInputText id="register-name" [(ngModel)]="name" name="name" required fluid>
         </div>
-      </div>
-    </div>
+        <div class="form-field">
+          <label for="register-email">Email</label>
+          <input pInputText id="register-email" type="email" [(ngModel)]="email" name="email" required fluid>
+        </div>
+        <div class="form-field">
+          <label for="register-password">Password</label>
+          <input pInputText id="register-password" type="password" [(ngModel)]="password" name="password" required minlength="6" fluid>
+        </div>
+        <div class="form-field">
+          <label for="register-phone">Phone</label>
+          <input pInputText id="register-phone" [(ngModel)]="phone" name="phone" fluid>
+        </div>
+        <div class="form-field">
+          <label for="register-address">Address</label>
+          <input pInputText id="register-address" [(ngModel)]="address" name="address" fluid>
+        </div>
+        <button pButton fluid type="submit" label="Register" [disabled]="!name || !email || !password"></button>
+      </form>
+      <p class="auth-footer">Already have an account? <a routerLink="/login">Login</a></p>
+    </p-card>
   `
 })
 export class RegisterComponent {

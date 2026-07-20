@@ -82,7 +82,7 @@ This architecture is called a **monolith with a SPA frontend**. Everything ships
 | **Angular 19** | A JavaScript framework for building UIs | Structured, typed, has routing, forms, and HTTP built in |
 | **TypeScript** | JavaScript with types | Catches bugs early, better editor support |
 | **Angular Signals** | A reactive state primitive | The modern Angular way to share state between components |
-| **Bootstrap 5** | A CSS framework | Pre-built styles and layout grid — no custom CSS needed for basics |
+| **PrimeNG 19** | An Angular component library | Accessible, themeable UI components designed for Angular |
 | **SCSS** | An enhanced version of CSS | Supports variables and nesting |
 
 ### Build & Infrastructure

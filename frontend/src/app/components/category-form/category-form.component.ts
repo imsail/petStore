@@ -4,27 +4,33 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Category } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-category-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ButtonModule, CardModule, InputTextModule, TextareaModule],
   template: `
     <h2>{{ isEdit ? 'Edit' : 'Add' }} Category</h2>
-    <form (ngSubmit)="onSubmit()">
-      <div class="mb-3">
-        <label class="form-label">Name</label>
-        <input type="text" class="form-control" [(ngModel)]="category.name" name="name" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Description</label>
-        <textarea class="form-control" [(ngModel)]="category.description" name="description" rows="3"></textarea>
-      </div>
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary">{{ isEdit ? 'Update' : 'Create' }}</button>
-        <a class="btn btn-outline-secondary" routerLink="/categories">Cancel</a>
-      </div>
-    </form>
+    <p-card styleClass="form-card">
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-field">
+          <label for="category-name">Name</label>
+          <input pInputText id="category-name" [(ngModel)]="category.name" name="name" required fluid>
+        </div>
+        <div class="form-field">
+          <label for="category-description">Description</label>
+          <textarea pTextarea id="category-description" [(ngModel)]="category.description" name="description" rows="3" fluid></textarea>
+        </div>
+        <div class="form-actions">
+          <button pButton type="submit" [label]="isEdit ? 'Update' : 'Create'"></button>
+          <a pButton outlined severity="secondary" label="Cancel" routerLink="/categories"></a>
+        </div>
+      </form>
+    </p-card>
   `
 })
 export class CategoryFormComponent implements OnInit {

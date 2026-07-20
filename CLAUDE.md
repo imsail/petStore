@@ -5,7 +5,7 @@ Spring Boot + Angular monolith pet store application. Manages pets, categories, 
 
 ## Tech Stack
 - **Backend:** Java 21, Spring Boot 4.0.2, Spring Data JPA, Spring Security, Flyway, PostgreSQL
-- **Frontend:** Angular 19 (standalone components, signals, SCSS), Bootstrap 5
+- **Frontend:** Angular 19 (standalone components, signals, SCSS), PrimeNG 19 with the Aura theme
 - **Build:** Maven multi-module (root aggregator → frontend + backend)
 - **Runtime:** Docker Compose (app + PostgreSQL 17)
 

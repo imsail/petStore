@@ -6,62 +6,69 @@ import { PetCreate } from '../../models/pet.model';
 import { Category } from '../../models/category.model';
 import { PetService } from '../../services/pet.service';
 import { CategoryService } from '../../services/category.service';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-pet-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [
+    CommonModule, FormsModule, RouterLink, ButtonModule, CardModule,
+    InputNumberModule, InputTextModule, SelectModule, TextareaModule
+  ],
   template: `
     <h2>{{ isEdit ? 'Edit' : 'Add' }} Pet</h2>
-    <form (ngSubmit)="onSubmit()" #petForm="ngForm">
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Name</label>
-          <input type="text" class="form-control" [(ngModel)]="pet.name" name="name" required>
+    <p-card styleClass="form-card">
+      <form (ngSubmit)="onSubmit()" #petForm="ngForm">
+        <div class="form-grid">
+        <div class="form-field">
+          <label for="pet-name">Name</label>
+          <input pInputText id="pet-name" [(ngModel)]="pet.name" name="name" required fluid>
         </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Type</label>
-          <input type="text" class="form-control" [(ngModel)]="pet.type" name="type" required>
+        <div class="form-field">
+          <label for="pet-type">Type</label>
+          <input pInputText id="pet-type" [(ngModel)]="pet.type" name="type" required fluid>
         </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Breed</label>
-          <input type="text" class="form-control" [(ngModel)]="pet.breed" name="breed">
+        <div class="form-field">
+          <label for="pet-breed">Breed</label>
+          <input pInputText id="pet-breed" [(ngModel)]="pet.breed" name="breed" fluid>
         </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Age</label>
-          <input type="number" class="form-control" [(ngModel)]="pet.age" name="age" min="0">
+        <div class="form-field">
+          <label for="pet-age">Age</label>
+          <p-inputNumber inputId="pet-age" [(ngModel)]="pet.age" name="age" [min]="0" [showButtons]="true" styleClass="full-width" />
         </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Price</label>
-          <input type="number" class="form-control" [(ngModel)]="pet.price" name="price" required min="0.01" step="0.01">
+        <div class="form-field">
+          <label for="pet-price">Price</label>
+          <p-inputNumber inputId="pet-price" [(ngModel)]="pet.price" name="price" mode="currency" currency="USD" [min]="0.01" styleClass="full-width" />
         </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Stock</label>
-          <input type="number" class="form-control" [(ngModel)]="pet.stock" name="stock" required min="0">
+        <div class="form-field">
+          <label for="pet-stock">Stock</label>
+          <p-inputNumber inputId="pet-stock" [(ngModel)]="pet.stock" name="stock" [min]="0" [showButtons]="true" styleClass="full-width" />
         </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Category</label>
-          <select class="form-select" [(ngModel)]="pet.categoryId" name="categoryId">
-            <option [ngValue]="null">None</option>
-            @for (cat of categories; track cat.id) {
-              <option [ngValue]="cat.id">{{ cat.name }}</option>
-            }
-          </select>
+        <div class="form-field">
+          <label for="pet-category">Category</label>
+          <p-select inputId="pet-category" class="full-width" [options]="categories" [(ngModel)]="pet.categoryId"
+                    name="categoryId" optionLabel="name" optionValue="id" placeholder="None" [showClear]="true" />
         </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Image URL</label>
-          <input type="text" class="form-control" [(ngModel)]="pet.imageUrl" name="imageUrl">
+        <div class="form-field form-field--full">
+          <label for="pet-image">Image URL</label>
+          <input pInputText id="pet-image" [(ngModel)]="pet.imageUrl" name="imageUrl" fluid>
         </div>
-        <div class="col-12 mb-3">
-          <label class="form-label">Description</label>
-          <textarea class="form-control" [(ngModel)]="pet.description" name="description" rows="3"></textarea>
+        <div class="form-field form-field--full">
+          <label for="pet-description">Description</label>
+          <textarea pTextarea id="pet-description" [(ngModel)]="pet.description" name="description" rows="3" fluid></textarea>
         </div>
-      </div>
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary">{{ isEdit ? 'Update' : 'Create' }}</button>
-        <a class="btn btn-outline-secondary" routerLink="/pets">Cancel</a>
-      </div>
-    </form>
+        </div>
+        <div class="form-actions">
+          <button pButton type="submit" [label]="isEdit ? 'Update' : 'Create'" [disabled]="petForm.invalid"></button>
+          <a pButton outlined severity="secondary" label="Cancel" routerLink="/pets"></a>
+        </div>
+      </form>
+    </p-card>
   `
 })
 export class PetFormComponent implements OnInit {

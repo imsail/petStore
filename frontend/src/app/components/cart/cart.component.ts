@@ -7,19 +7,30 @@ import { OrderService } from '../../services/order.service';
 import { CustomerService } from '../../services/customer.service';
 import { AuthService } from '../../services/auth.service';
 import { Customer } from '../../models/customer.model';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { MessageModule } from 'primeng/message';
+import { SelectModule } from 'primeng/select';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [
+    CommonModule, FormsModule, RouterLink, ButtonModule, CardModule,
+    InputNumberModule, MessageModule, SelectModule, TableModule
+  ],
   template: `
     <h2>Shopping Cart</h2>
 
     @if (cartService.items().length === 0) {
-      <div class="alert alert-info">Your cart is empty. <a routerLink="/pets">Browse pets</a></div>
+      <p-message class="message-block" severity="info" text="Your cart is empty." />
+      <a pButton outlined label="Browse pets" routerLink="/pets"></a>
     } @else {
-      <table class="table">
-        <thead>
+      <div class="table-wrap">
+        <p-table [value]="cartService.items()" [tableStyle]="{ 'min-width': '48rem' }">
+          <ng-template #header>
           <tr>
             <th>Pet</th>
             <th>Price</th>
@@ -27,48 +38,45 @@ import { Customer } from '../../models/customer.model';
             <th>Subtotal</th>
             <th></th>
           </tr>
-        </thead>
-        <tbody>
-          @for (item of cartService.items(); track item.pet.id) {
+          </ng-template>
+          <ng-template #body let-item>
             <tr>
               <td>{{ item.pet.name }}</td>
               <td>\${{ item.pet.price }}</td>
-              <td style="width: 120px">
-                <input type="number" class="form-control form-control-sm" [ngModel]="item.quantity"
-                       (ngModelChange)="cartService.updateQuantity(item.pet.id, $event)" min="1" [max]="item.pet.stock">
+              <td>
+                <p-inputNumber [ngModel]="item.quantity" (ngModelChange)="cartService.updateQuantity(item.pet.id, $event)"
+                               [min]="1" [max]="item.pet.stock" [showButtons]="true" size="small" />
               </td>
               <td>\${{ (item.pet.price * item.quantity).toFixed(2) }}</td>
-              <td><button class="btn btn-sm btn-outline-danger" (click)="cartService.removeFromCart(item.pet.id)">Remove</button></td>
+              <td><button pButton outlined size="small" severity="danger" label="Remove" type="button" (click)="cartService.removeFromCart(item.pet.id)"></button></td>
             </tr>
-          }
-        </tbody>
-        <tfoot>
+          </ng-template>
+          <ng-template #footer>
           <tr>
-            <td colspan="3" class="text-end fw-bold">Total:</td>
-            <td class="fw-bold">\${{ cartService.total().toFixed(2) }}</td>
+            <td colspan="3"><strong>Total:</strong></td>
+            <td><strong>\${{ cartService.total().toFixed(2) }}</strong></td>
             <td></td>
           </tr>
-        </tfoot>
-      </table>
+          </ng-template>
+        </p-table>
+      </div>
 
-      <div class="card p-3 mb-3">
-        <h5>Checkout</h5>
+      <p-card header="Checkout" styleClass="form-card">
         @if (authService.isAdmin()) {
-          <div class="mb-3">
-            <label class="form-label">Select Customer</label>
-            <select class="form-select" [(ngModel)]="selectedCustomerId">
-              <option [ngValue]="undefined">Choose a customer...</option>
-              @for (c of customers; track c.id) {
-                <option [ngValue]="c.id">{{ c.name }} ({{ c.email }})</option>
-              }
-            </select>
+          <div class="form-field">
+            <label for="checkout-customer">Select Customer</label>
+            <p-select inputId="checkout-customer" class="full-width" [options]="customers" [(ngModel)]="selectedCustomerId"
+                      optionLabel="name" optionValue="id" placeholder="Choose a customer...">
+              <ng-template #selectedItem let-customer>{{ customer.name }} ({{ customer.email }})</ng-template>
+              <ng-template #item let-customer>{{ customer.name }} ({{ customer.email }})</ng-template>
+            </p-select>
           </div>
-          <button class="btn btn-success" [disabled]="!selectedCustomerId" (click)="checkout()">Place Order</button>
+          <button pButton severity="success" label="Place Order" type="button" [disabled]="!selectedCustomerId" (click)="checkout()"></button>
         } @else {
           <p>Ordering as: <strong>{{ authService.currentUser()?.customerName }}</strong></p>
-          <button class="btn btn-success" (click)="checkout()">Place Order</button>
+          <button pButton severity="success" label="Place Order" type="button" (click)="checkout()"></button>
         }
-      </div>
+      </p-card>
     }
   `
 })

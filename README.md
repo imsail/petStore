@@ -5,7 +5,7 @@ A full-stack pet store application built with Spring Boot and Angular, deployed 
 ## Tech Stack
 
 - **Backend:** Java 21, Spring Boot 4.0.2, Spring Data JPA, Flyway, PostgreSQL
-- **Frontend:** Angular 19 (standalone components, signals, SCSS), Bootstrap 5
+- **Frontend:** Angular 19 (standalone components, signals, SCSS), PrimeNG 19 with the Aura theme
 - **Build:** Maven multi-module (root aggregator → frontend + backend)
 - **Runtime:** Docker Compose (app + PostgreSQL 17)
 

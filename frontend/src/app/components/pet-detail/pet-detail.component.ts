@@ -4,38 +4,40 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Pet } from '../../models/pet.model';
 import { PetService } from '../../services/pet.service';
 import { CartService } from '../../services/cart.service';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-pet-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ButtonModule, CardModule, TagModule],
   template: `
     @if (pet) {
-      <div class="row">
-        <div class="col-md-8">
-          <h2>{{ pet.name }}</h2>
-          <span class="badge mb-3" [class]="'badge-' + pet.status.toLowerCase()">{{ pet.status }}</span>
-          <table class="table">
-            <tr><th>Type</th><td>{{ pet.type }}</td></tr>
-            <tr><th>Breed</th><td>{{ pet.breed }}</td></tr>
-            <tr><th>Age</th><td>{{ pet.age }}</td></tr>
-            <tr><th>Price</th><td>\${{ pet.price }}</td></tr>
-            <tr><th>Stock</th><td>{{ pet.stock }}</td></tr>
-            <tr><th>Category</th><td>{{ pet.category?.name }}</td></tr>
-            <tr><th>Description</th><td>{{ pet.description }}</td></tr>
-          </table>
-          <div class="d-flex gap-2">
+      <h2>{{ pet.name }}</h2>
+      <p-card styleClass="form-card" [subheader]="pet.type + ' · ' + (pet.breed || 'Mixed breed')">
+          <p-tag [value]="pet.status" [severity]="petSeverity(pet.status)" />
+          <dl class="summary-list pet-summary">
+            <dt>Age</dt><dd>{{ pet.age }}</dd>
+            <dt>Price</dt><dd>\${{ pet.price }}</dd>
+            <dt>Stock</dt><dd>{{ pet.stock }}</dd>
+            <dt>Category</dt><dd>{{ pet.category.name || 'None' }}</dd>
+            <dt>Description</dt><dd>{{ pet.description || 'No description available.' }}</dd>
+          </dl>
+          <ng-template #footer>
+          <div class="form-actions">
             @if (pet.status === 'AVAILABLE' && pet.stock > 0) {
-              <button class="btn btn-success" (click)="addToCart()">Add to Cart</button>
+              <button pButton severity="success" label="Add to Cart" type="button" (click)="addToCart()"></button>
             }
-            <a class="btn btn-outline-primary" [routerLink]="['/pets', pet.id, 'edit']">Edit</a>
-            <button class="btn btn-outline-danger" (click)="deletePet()">Delete</button>
-            <a class="btn btn-outline-secondary" routerLink="/pets">Back</a>
+            <a pButton outlined label="Edit" [routerLink]="['/pets', pet.id, 'edit']"></a>
+            <button pButton outlined severity="danger" label="Delete" type="button" (click)="deletePet()"></button>
+            <a pButton outlined severity="secondary" label="Back" routerLink="/pets"></a>
           </div>
-        </div>
-      </div>
+          </ng-template>
+      </p-card>
     }
-  `
+  `,
+  styles: [`.pet-summary { margin-top: 1.5rem; }`]
 })
 export class PetDetailComponent implements OnInit {
   pet?: Pet;
@@ -60,5 +62,11 @@ export class PetDetailComponent implements OnInit {
     if (this.pet && confirm('Delete this pet?')) {
       this.petService.delete(this.pet.id).subscribe(() => this.router.navigate(['/pets']));
     }
+  }
+
+  petSeverity(status: string): 'success' | 'warn' | 'danger' {
+    if (status === 'AVAILABLE') return 'success';
+    if (status === 'PENDING') return 'warn';
+    return 'danger';
   }
 }

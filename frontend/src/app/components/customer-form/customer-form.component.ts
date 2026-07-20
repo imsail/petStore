@@ -4,35 +4,43 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CustomerCreate } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-customer-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ButtonModule, CardModule, InputTextModule, TextareaModule],
   template: `
     <h2>{{ isEdit ? 'Edit' : 'Add' }} Customer</h2>
-    <form (ngSubmit)="onSubmit()">
-      <div class="mb-3">
-        <label class="form-label">Name</label>
-        <input type="text" class="form-control" [(ngModel)]="customer.name" name="name" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="email" class="form-control" [(ngModel)]="customer.email" name="email" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Phone</label>
-        <input type="text" class="form-control" [(ngModel)]="customer.phone" name="phone">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Address</label>
-        <textarea class="form-control" [(ngModel)]="customer.address" name="address" rows="3"></textarea>
-      </div>
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary">{{ isEdit ? 'Update' : 'Create' }}</button>
-        <a class="btn btn-outline-secondary" routerLink="/customers">Cancel</a>
-      </div>
-    </form>
+    <p-card styleClass="form-card">
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="customer-name">Name</label>
+            <input pInputText id="customer-name" [(ngModel)]="customer.name" name="name" required fluid>
+          </div>
+          <div class="form-field">
+            <label for="customer-email">Email</label>
+            <input pInputText id="customer-email" type="email" [(ngModel)]="customer.email" name="email" required fluid>
+          </div>
+          <div class="form-field">
+            <label for="customer-phone">Phone</label>
+            <input pInputText id="customer-phone" [(ngModel)]="customer.phone" name="phone" fluid>
+          </div>
+          <div class="form-field form-field--full">
+            <label for="customer-address">Address</label>
+            <textarea pTextarea id="customer-address" [(ngModel)]="customer.address" name="address" rows="3" fluid></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button pButton type="submit" [label]="isEdit ? 'Update' : 'Create'"></button>
+          <a pButton outlined severity="secondary" label="Cancel" routerLink="/customers"></a>
+        </div>
+      </form>
+    </p-card>
   `
 })
 export class CustomerFormComponent implements OnInit {

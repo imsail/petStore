@@ -8,11 +8,13 @@ import { FooterComponent } from './components/layout/footer/footer.component';
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
   template: `
-    <app-header />
-    <main class="container py-4">
-      <router-outlet />
-    </main>
-    <app-footer />
+    <div class="app-shell">
+      <app-header />
+      <main class="app-container">
+        <router-outlet />
+      </main>
+      <app-footer />
+    </div>
   `
 })
 export class AppComponent {}

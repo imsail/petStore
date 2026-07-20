@@ -3,36 +3,38 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Customer } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-customer-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ButtonModule, TableModule],
   template: `
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="page-header">
       <h2>Customers</h2>
-      <a class="btn btn-primary" routerLink="/customers/new">Add Customer</a>
+      <a pButton label="Add Customer" routerLink="/customers/new"></a>
     </div>
-    <table class="table table-striped">
-      <thead>
+    <div class="table-wrap">
+      <p-table [value]="customers" stripedRows [tableStyle]="{ 'min-width': '48rem' }">
+        <ng-template #header>
         <tr><th>Name</th><th>Email</th><th>Phone</th><th></th></tr>
-      </thead>
-      <tbody>
-        @for (c of customers; track c.id) {
+        </ng-template>
+        <ng-template #body let-c>
           <tr>
             <td><a [routerLink]="['/customers', c.id]">{{ c.name }}</a></td>
             <td>{{ c.email }}</td>
             <td>{{ c.phone }}</td>
-            <td>
-              <div class="d-flex gap-1">
-                <a class="btn btn-sm btn-outline-primary" [routerLink]="['/customers', c.id, 'edit']">Edit</a>
-                <button class="btn btn-sm btn-outline-danger" (click)="deleteCustomer(c.id)">Delete</button>
+            <td class="table-actions">
+              <div class="inline-actions">
+                <a pButton outlined size="small" label="Edit" [routerLink]="['/customers', c.id, 'edit']"></a>
+                <button pButton outlined size="small" severity="danger" label="Delete" type="button" (click)="deleteCustomer(c.id)"></button>
               </div>
             </td>
           </tr>
-        }
-      </tbody>
-    </table>
+        </ng-template>
+      </p-table>
+    </div>
   `
 })
 export class CustomerListComponent implements OnInit {

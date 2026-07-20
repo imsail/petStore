@@ -8,73 +8,61 @@ import { PagedResponse } from '../../models/paged-response.model';
 import { PetService } from '../../services/pet.service';
 import { CategoryService } from '../../services/category.service';
 import { CartService } from '../../services/cart.service';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { PaginatorModule } from 'primeng/paginator';
+import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-pet-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [
+    CommonModule, RouterLink, FormsModule, ButtonModule, CardModule,
+    InputTextModule, PaginatorModule, SelectModule, TagModule
+  ],
   template: `
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="page-header">
       <h2>Pets</h2>
-      <a class="btn btn-primary" routerLink="/pets/new">Add Pet</a>
+      <a pButton label="Add Pet" routerLink="/pets/new"></a>
     </div>
 
-    <div class="row mb-3">
-      <div class="col-md-4">
-        <input type="text" class="form-control" placeholder="Search pets..."
+    <div class="toolbar-row">
+        <input pInputText type="search" placeholder="Search pets..."
                [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
-      </div>
-      <div class="col-md-3">
-        <select class="form-select" [(ngModel)]="selectedCategoryId" (change)="loadPets()">
-          <option [ngValue]="undefined">All Categories</option>
-          @for (cat of categories; track cat.id) {
-            <option [ngValue]="cat.id">{{ cat.name }}</option>
-          }
-        </select>
-      </div>
+        <p-select [options]="categories" [(ngModel)]="selectedCategoryId" optionLabel="name" optionValue="id"
+                  placeholder="All Categories" [showClear]="true" (onChange)="onCategoryChange()" />
+        <button pButton outlined label="Search" type="button" (click)="onSearch()"></button>
     </div>
 
-    <div class="row">
+    <div class="card-grid">
       @for (pet of pets; track pet.id) {
-        <div class="col-md-4 col-lg-3 mb-4">
-          <div class="card h-100">
-            <div class="card-body">
-              <h5 class="card-title">{{ pet.name }}</h5>
-              <p class="card-text text-muted">{{ pet.type }} - {{ pet.breed }}</p>
-              <p class="card-text">{{ pet.description }}</p>
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-primary">\${{ pet.price }}</span>
-                <span class="badge" [class]="'badge-' + pet.status.toLowerCase()">{{ pet.status }}</span>
+          <p-card styleClass="pet-card" [header]="pet.name" [subheader]="pet.type + ' · ' + (pet.breed || 'Mixed breed')">
+            <div class="pet-card-content">
+              <p>{{ pet.description || 'No description available.' }}</p>
+              <div class="price-row">
+                <span class="price">\${{ pet.price }}</span>
+                <p-tag [value]="pet.status" [severity]="petSeverity(pet.status)" />
               </div>
-              <p class="text-muted small mt-1">Stock: {{ pet.stock }}</p>
+              <p class="muted small-text">Stock: {{ pet.stock }}</p>
             </div>
-            <div class="card-footer d-flex gap-2">
-              <a class="btn btn-sm btn-outline-primary" [routerLink]="['/pets', pet.id]">Details</a>
+            <ng-template #footer>
+              <div class="inline-actions">
+              <a pButton outlined size="small" label="Details" [routerLink]="['/pets', pet.id]"></a>
               @if (pet.status === 'AVAILABLE' && pet.stock > 0) {
-                <button class="btn btn-sm btn-success" (click)="addToCart(pet)">Add to Cart</button>
+                <button pButton size="small" severity="success" label="Add to Cart" type="button" (click)="addToCart(pet)"></button>
               }
-            </div>
-          </div>
-        </div>
+              </div>
+            </ng-template>
+          </p-card>
       }
     </div>
 
     @if (totalPages > 1) {
-      <nav>
-        <ul class="pagination justify-content-center">
-          <li class="page-item" [class.disabled]="currentPage === 0">
-            <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
-          </li>
-          @for (p of pageNumbers; track p) {
-            <li class="page-item" [class.active]="p === currentPage">
-              <a class="page-link" (click)="goToPage(p)">{{ p + 1 }}</a>
-            </li>
-          }
-          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
-            <a class="page-link" (click)="goToPage(currentPage + 1)">Next</a>
-          </li>
-        </ul>
-      </nav>
+      <p-paginator [first]="currentPage * pageSize" [rows]="pageSize" [totalRecords]="totalRecords"
+                   [showCurrentPageReport]="true" currentPageReportTemplate="{first} - {last} of {totalRecords}"
+                   (onPageChange)="onPageChange($event)" />
     }
   `
 })
@@ -85,7 +73,8 @@ export class PetListComponent implements OnInit {
   selectedCategoryId?: number;
   currentPage = 0;
   totalPages = 0;
-  pageNumbers: number[] = [];
+  totalRecords = 0;
+  readonly pageSize = 12;
 
   constructor(
     private petService: PetService,
@@ -99,20 +88,30 @@ export class PetListComponent implements OnInit {
   }
 
   loadPets(): void {
-    this.petService.findAll(this.currentPage, 12, this.selectedCategoryId).subscribe(res => this.handleResponse(res));
+    this.petService.findAll(this.currentPage, this.pageSize, this.selectedCategoryId).subscribe(res => this.handleResponse(res));
   }
 
   onSearch(): void {
+    this.currentPage = 0;
+    this.loadCurrentFilter();
+  }
+
+  onCategoryChange(): void {
+    this.currentPage = 0;
+    this.loadCurrentFilter();
+  }
+
+  onPageChange(event: { page?: number }): void {
+    this.currentPage = event.page ?? 0;
+    this.loadCurrentFilter();
+  }
+
+  private loadCurrentFilter(): void {
     if (this.searchQuery.trim()) {
-      this.petService.search(this.searchQuery, this.currentPage).subscribe(res => this.handleResponse(res));
+      this.petService.search(this.searchQuery, this.currentPage, this.pageSize).subscribe(res => this.handleResponse(res));
     } else {
       this.loadPets();
     }
-  }
-
-  goToPage(page: number): void {
-    this.currentPage = page;
-    this.loadPets();
   }
 
   addToCart(pet: Pet): void {
@@ -122,6 +121,12 @@ export class PetListComponent implements OnInit {
   private handleResponse(res: PagedResponse<Pet>): void {
     this.pets = res.content;
     this.totalPages = res.totalPages;
-    this.pageNumbers = Array.from({ length: res.totalPages }, (_, i) => i);
+    this.totalRecords = res.totalElements;
+  }
+
+  petSeverity(status: string): 'success' | 'warn' | 'danger' {
+    if (status === 'AVAILABLE') return 'success';
+    if (status === 'PENDING') return 'warn';
+    return 'danger';
   }
 }

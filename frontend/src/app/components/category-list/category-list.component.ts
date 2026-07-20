@@ -3,35 +3,37 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Category } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-category-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ButtonModule, TableModule],
   template: `
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="page-header">
       <h2>Categories</h2>
-      <a class="btn btn-primary" routerLink="/categories/new">Add Category</a>
+      <a pButton label="Add Category" routerLink="/categories/new"></a>
     </div>
-    <table class="table table-striped">
-      <thead>
+    <div class="table-wrap">
+      <p-table [value]="categories" stripedRows [tableStyle]="{ 'min-width': '42rem' }">
+        <ng-template #header>
         <tr><th>Name</th><th>Description</th><th></th></tr>
-      </thead>
-      <tbody>
-        @for (cat of categories; track cat.id) {
+        </ng-template>
+        <ng-template #body let-cat>
           <tr>
             <td>{{ cat.name }}</td>
             <td>{{ cat.description }}</td>
-            <td>
-              <div class="d-flex gap-1">
-                <a class="btn btn-sm btn-outline-primary" [routerLink]="['/categories', cat.id, 'edit']">Edit</a>
-                <button class="btn btn-sm btn-outline-danger" (click)="deleteCategory(cat.id)">Delete</button>
+            <td class="table-actions">
+              <div class="inline-actions">
+                <a pButton outlined size="small" label="Edit" [routerLink]="['/categories', cat.id, 'edit']"></a>
+                <button pButton outlined size="small" severity="danger" label="Delete" type="button" (click)="deleteCategory(cat.id)"></button>
               </div>
             </td>
           </tr>
-        }
-      </tbody>
-    </table>
+        </ng-template>
+      </p-table>
+    </div>
   `
 })
 export class CategoryListComponent implements OnInit {
